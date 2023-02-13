@@ -1,0 +1,5 @@
+Pipfile
+Pipfile.lock
+\doc
+.vscode
+_pycache_
