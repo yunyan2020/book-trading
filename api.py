@@ -1,3 +1,4 @@
+import datetime
 from fastapi import FastAPI
 from pydantic import BaseModel
 
@@ -15,9 +16,11 @@ app = FastAPI()
 # db = DB("todo.db")
 db = DB()
 
+
 @app.get("/")
 def root():
     return "Hello and welcome to book trading system!"
+
 
 @app.get("/users")
 def get_all_users():
@@ -25,11 +28,16 @@ def get_all_users():
     SELECT * FROM users
     """
     data = db.call_db(get_query)
-    users = []
-    for element in data:
-        id,username,password  =element
-        users.append(User(id=id,username=username,password=password))    
+    users = [
+        User(id=id, username=username, password=password)
+        for id, username, password in data
+    ]
+    # users = []
+    # for element in data:
+    #     id,username,password  =element
+    #     users.append(User(id=id,username=username,password=password))
     return users
+
 
 @app.post("/register")
 def register_customer(user: User):
@@ -37,28 +45,43 @@ def register_customer(user: User):
     INSERT INTO users (username,password)
     VALUES (?,?)
     """
-    db.call_db(insert_query,user.username,user.password)
+    db.call_db(insert_query, user.username, user.password)
     return "Adds a user"
 
+@app.delete("/login")
+def delete_login():
+    delete_query = """
+    DELETE FROM currentLogin 
+    """
+    db.call_db(delete_query)
+    # app.todos = list(filter(lambda x: x.id != id, app.todos))
+    return True
+
+@app.post("/login")
+def login_customer(user: User):
+    loginDate = datetime.now()
+    insert_query = """
+    INSERT INTO currentLogin (username,password,loginDate)
+    VALUES (?,?,?)
+    """
+    db.call_db(insert_query, user.username, user.password,loginDate)
+    return "Login a user"
+
 @app.get("/user/{username}")
-def get_user_by_username(username:str):  
-    print("parameter username ") 
+def get_user_by_username(username: str):
+    print("parameter username ")
     print(username)
     get_user_query = """
     SELECT * FROM users
     WHERE username=?
-    """     
-    data = db.call_db(get_user_query,username)
-    users = []
-    for element in data:
-        id,username,password  =element
-        users.append(User(id=id,username=username,password=password))    
+    """
+    data = db.call_db(get_user_query, username)
+    users = [
+        User(id=id, username=username, password=password)
+        for id, username, password in data
+    ]
+    # users = []
+    # for element in data:
+    #     id,username,password  =element
+    #     users.append(User(id=id,username=username,password=password))
     return users
-
-@app.get("/users")
-def get_users():   
-    get_user_query = """
-    SELECT * FROM users
-    """     
-    data = db.call_db(get_user_query)
-    return data

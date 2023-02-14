@@ -2,7 +2,7 @@ import pyodbc
 
 db_server = "localhost\SQLEXPRESS"
 # db_server = "LAPTOP-800N131K\SQLEXPRESS"
-db_name = "bookTrading2"
+db_name = "bookTrading"
 db_driver = "ODBC Driver 17 for SQL Server"
 
 connection_string = f"""

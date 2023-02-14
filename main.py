@@ -6,10 +6,10 @@ def admin_session():
         print("")
         print("Admin Menu")
         print("0. Get all users")
-        print("1. Add a book")
-        print("2. Add a person")
-        print("3. Modify order")
-        print("4. delete orders")
+        print("1. Modify order")
+        print("2. delete orders")
+        print("3. Add a book") 
+        print("4. Get all orders")      
         print("5. logout")  
 
         user_option = input(str("Option : "))
@@ -21,13 +21,13 @@ def admin_session():
         if user_option == "0":
             get_all_users()
         elif user_option == "1":
-            print("Add a book")
-        elif user_option == "2":
-            print("Add a person")
-        elif user_option == "3":
             print("Modify order")
-        elif user_option == "4":
+        elif user_option == "2":    
             print("delete orders")
+        elif user_option == "3":
+            print("Add a book") 
+        elif user_option == "4":
+            print("Get all orders")  
         elif user_option == "5":
             break
         else:
@@ -47,7 +47,7 @@ def customer_session():
         if user_option == "1":
             register()
         elif user_option == "2":
-            print("Login")
+            login()
         elif user_option == "3":
             print("Shopping")
         elif user_option == "4":

@@ -3,3 +3,4 @@ Pipfile.lock
 \doc
 .vscode
 _pycache_
+\sql
