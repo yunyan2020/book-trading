@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from fastapi import FastAPI
 from pydantic import BaseModel
 
@@ -54,17 +54,17 @@ def delete_login():
     DELETE FROM currentLogin 
     """
     db.call_db(delete_query)
-    # app.todos = list(filter(lambda x: x.id != id, app.todos))
     return True
 
 @app.post("/login")
 def login_customer(user: User):
-    loginDate = datetime.now()
+    login_date = datetime.now()
+    print(login_date)
     insert_query = """
     INSERT INTO currentLogin (username,password,loginDate)
     VALUES (?,?,?)
     """
-    db.call_db(insert_query, user.username, user.password,loginDate)
+    db.call_db(insert_query, user.username, user.password,login_date)
     return "Login a user"
 
 @app.get("/user/{username}")
@@ -79,9 +79,5 @@ def get_user_by_username(username: str):
     users = [
         User(id=id, username=username, password=password)
         for id, username, password in data
-    ]
-    # users = []
-    # for element in data:
-    #     id,username,password  =element
-    #     users.append(User(id=id,username=username,password=password))
+    ]  
     return users

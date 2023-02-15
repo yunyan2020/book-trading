@@ -1,4 +1,4 @@
-from bookTrading import register,get_all_users
+from bookTrading import register,get_all_users,login,logoutExistedUser
 
 
 def admin_session():
@@ -29,6 +29,7 @@ def admin_session():
         elif user_option == "4":
             print("Get all orders")  
         elif user_option == "5":
+            logoutExistedUser()
             break
         else:
             print("No valid option was selected")

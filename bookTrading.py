@@ -8,10 +8,9 @@ def url(route: str):
 def get_all_users():
      users = []
      res = requests.get(url("/users"))
-     if not res.status_code == 200:
-         return
-     data = res.json()
-     for user in data: 
+     if res.status_code != 200:
+        return []
+     for user in  res.json(): 
         user = User(**user) 
         print("_________________")
         print(f"ID: {user.id}")
@@ -19,7 +18,6 @@ def get_all_users():
         print(f"password: {user.password}")
         users.append(user)
      return users
-
 
 def hasSameUsernameFunction(username:str):  
     res = requests.get(url(f"/user/{username.strip()}"))
@@ -49,29 +47,32 @@ def register():
     res = requests.post(url("/register"), json=new_user.dict())
     print(res)
 
-def getCredients(username:str):
+def getCredientials(username:str):
     res = requests.get(url(f"/user/{username.strip()}"))   
     if not res.status_code == 200:
-         return
+         return    
     return res.json()
 
-def SaveLoinInfo(user:User):
+def saveLoinInfo(user:User):
     res = requests.post(url("/login"), json=user.dict())
-    print(res)
+    if res.status_code == 200:
+        print("Login successful")
 
-def deleteCurrentLogin():
+def logoutExistedUser():
     res = requests.delete(url("/login"))
-    print(res.json())
+    if res.status_code != 200:
+        return   
 
 def login():
     print("Customer login")
     print("")
     username = input(str("Customer username: "))
-    password = input(str("Customer password: "))
+    password = input(str("Customer password: "))    
+    credientials =getCredientials(username)[0]
+    stored_user = User(**credientials)   
     user = User(username=username, password=password)
-    storedUser = getCredients(username)
-    if username == storedUser.username & password == storedUser.password:
-        deleteCurrentLogin()
-        SaveLoinInfo(user)
+    if username == stored_user.username and password == stored_user.password:
+        logoutExistedUser()
+        saveLoinInfo(user)
     else:
         print("Bad credentials")
