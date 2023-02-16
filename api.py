@@ -12,6 +12,32 @@ class User(BaseModel):
     password: str
 
 
+class Book(BaseModel):
+    id: int = None
+    ISBN: str
+    title: str
+    authorId: int
+    price: float
+
+class Book_view(BaseModel):
+    id: int = None
+    ISBN: str
+    title: str
+    author: str
+    price: float
+
+
+class Author(BaseModel):
+    id: int = None
+    firstName: str
+    lastName: str
+
+class Customer(BaseModel):
+    customerId: int = None
+    username: str
+    password: str
+
+
 app = FastAPI()
 # db = DB("todo.db")
 db = DB()
@@ -32,10 +58,6 @@ def get_all_users():
         User(id=id, username=username, password=password)
         for id, username, password in data
     ]
-    # users = []
-    # for element in data:
-    #     id,username,password  =element
-    #     users.append(User(id=id,username=username,password=password))
     return users
 
 
@@ -48,6 +70,7 @@ def register_customer(user: User):
     db.call_db(insert_query, user.username, user.password)
     return "Adds a user"
 
+
 @app.delete("/login")
 def delete_login():
     delete_query = """
@@ -56,21 +79,21 @@ def delete_login():
     db.call_db(delete_query)
     return True
 
+
 @app.post("/login")
 def login_customer(user: User):
     login_date = datetime.now()
-    print(login_date)
     insert_query = """
-    INSERT INTO currentLogin (username,password,loginDate)
-    VALUES (?,?,?)
+    INSERT INTO currentLogin (username,customerId,password,loginDate)
+    VALUES (?,?,?,?)
     """
-    db.call_db(insert_query, user.username, user.password,login_date)
+    db.call_db(insert_query, user.username,user.id, user.password, login_date)
     return "Login a user"
+
+
 
 @app.get("/user/{username}")
 def get_user_by_username(username: str):
-    print("parameter username ")
-    print(username)
     get_user_query = """
     SELECT * FROM users
     WHERE username=?
@@ -79,5 +102,68 @@ def get_user_by_username(username: str):
     users = [
         User(id=id, username=username, password=password)
         for id, username, password in data
-    ]  
+    ]
     return users
+
+
+@app.post("/import-books")
+async def import_books(book: Book):
+    save_books_query = """
+    INSERT INTO books (ISBN, title, authorId, price) VALUES (?, ?, ?, ?)
+    """
+    db.call_db(save_books_query, book.ISBN, book.title, book.authorId, book.price)
+    return {"message": "Books data imported to database successfully!"}
+
+
+@app.post("/import-authors")
+async def import_authors(author: Author):
+    save_authors_query = """
+    INSERT INTO authors (firstName, lastName) VALUES (?, ?)
+    """
+    db.call_db(save_authors_query, author.firstName, author.lastName)
+    return {"message": "Authors data imported to database successfully!"}
+
+
+@app.get("/books")
+def get_all_books():
+    get_query = """   
+    SELECT b.id,b.ISBN, b.title,STRING_AGG(a.firstName + ' ' + a.lastName, ',')   as author,b.price
+    FROM books AS b, authors AS a
+    WHERE a.authorId = b.authorID
+    GROUP BY b.id, b.ISBN,b.title,b.price
+    """
+    data = db.call_db(get_query)
+    books = [
+        Book_view(id=id, ISBN=ISBN, title=title,author=author,price=price)
+        for id, ISBN, title,author,price in data
+    ]    
+    return books
+
+
+@app.get("/book/{id}")
+def get_book_by_id(id: int):
+    get_book_query = """
+    SELECT b.id,b.ISBN, b.title,STRING_AGG(a.firstName + ' ' + a.lastName, ',')   as author,b.price
+    FROM books AS b, authors AS a
+    WHERE a.authorId = b.authorID
+    AND b.id = ?
+    GROUP BY b.id, b.ISBN,b.title,b.price
+    """
+    data = db.call_db(get_book_query, id)
+    books = [
+        Book_view(id=id, ISBN=ISBN, title=title,author=author,price=price)
+        for id, ISBN, title,author,price in data
+    ]    
+    return books
+
+@app.get("/current_login")
+def get_current_login():
+    get_current_login_query = """
+    SELECT * FROM currentLogin
+    """
+    data = db.call_db(get_current_login_query)
+    current_login = [
+        Customer(customerId=customerId, username=username, password=password)
+        for id,customerId, username, password,login_date in data
+    ]
+    return current_login
