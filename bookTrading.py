@@ -1,5 +1,6 @@
+from datetime import datetime
 import requests
-from api import User, Book,Book_view
+from api import User, Book,Book_view,Customer,Order
 import csv
 
 
@@ -142,6 +143,14 @@ def get_customer_code():
         return []   
     return res.json()
 
+def save_order(order: Order):
+    res = requests.post(url("/order"), json=order.dict())
+    if res.status_code == 200:
+        print("Save order successful")
+    else:
+        print("Save order failed")
+
+
 def order_books():
     get_all_books()
     bookId = input("Please input your Book ID: ")
@@ -149,8 +158,8 @@ def order_books():
     if not str.isdigit(bookId):
         print("Ids are integers")
         return
-    order_book = get_book_by_id(bookId)
-    while  order_book == []:
+    ordered_book = get_book_by_id(bookId)
+    while  ordered_book == []:
         print("There is no such book")
         bookId = input("Please input your Book ID: ")
         bookId = bookId.strip()
@@ -165,7 +174,15 @@ def order_books():
     print(book)
     
     current_login = get_customer_code()
-   
+    for customer in current_login:
+        customer_info =  Customer(**customer)
 
-
-
+    quantity = input("Please enter the quantity of books you want to order: ")
+    quantity = quantity.strip()
+    if not str.isdigit(quantity):
+        print("Ids are integers")
+        return
+    print(f"customerId {customer_info.customerId}") 
+    order = Order(customerId=customer_info.customerId, ISBN=book.ISBN,quantity=quantity,salesPrice=book.price)
+    print(order)
+    save_order(order)

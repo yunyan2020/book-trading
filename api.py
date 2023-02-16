@@ -37,6 +37,12 @@ class Customer(BaseModel):
     username: str
     password: str
 
+class Order(BaseModel):
+    orderNo: int = None
+    customerId: int
+    ISBN       :str
+    quantity :int
+    salesPrice:float
 
 app = FastAPI()
 # db = DB("todo.db")
@@ -167,3 +173,13 @@ def get_current_login():
         for id,customerId, username, password,login_date in data
     ]
     return current_login
+
+@app.post("/order")
+def save_order(order: Order):
+    insert_query = """
+    INSERT INTO orders (customerId,ISBN,quantity,salesPrice,salesDate)
+    VALUES (?,?,?,?,?)
+    """     
+    salesDate = datetime.now()
+    db.call_db(insert_query, order.customerId,order.ISBN, order.quantity,order.salesPrice,salesDate)
+    return "Order books"
