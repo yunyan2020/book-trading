@@ -1,15 +1,15 @@
-from bookTrading import register,get_all_users,login,logoutExistedUser
-
+from bookTrading import register,get_all_users,login,logoutExistedUser,import_book_csv_data
+from bookTrading import import_authors_csv_data,order_books
 
 def admin_session():
     while 1 :
         print("")
         print("Admin Menu")
         print("0. Get all users")
-        print("1. Modify order")
-        print("2. delete orders")
-        print("3. Add a book") 
-        print("4. Get all orders")      
+        print("1. import authors") 
+        print("2. import books")
+        print("3. Modify order")
+        print("4. delete orders")    
         print("5. logout")  
 
         user_option = input(str("Option : "))
@@ -21,15 +21,16 @@ def admin_session():
         if user_option == "0":
             get_all_users()
         elif user_option == "1":
-            print("Modify order")
-        elif user_option == "2":    
-            print("delete orders")
+            import_authors_csv_data()             
+        elif user_option == "2":   
+            import_book_csv_data()              
         elif user_option == "3":
-            print("Add a book") 
+            print("Modify order")
         elif user_option == "4":
-            print("Get all orders")  
+            print("delete orders")  
         elif user_option == "5":
             logoutExistedUser()
+            print("Logout successful")  
             break
         else:
             print("No valid option was selected")
@@ -41,7 +42,7 @@ def customer_session():
         print("Customer Menu")
         print("1. Register")
         print("2. Login")
-        print("3. Shopping")
+        print("3. Order books")
         print("4. Get my orders")
         print("5. logout")
         user_option = input(str("Option : "))
@@ -50,7 +51,7 @@ def customer_session():
         elif user_option == "2":
             login()
         elif user_option == "3":
-            print("Shopping")
+            order_books()
         elif user_option == "4":
             print("Get my orders")
         elif user_option == "5":
