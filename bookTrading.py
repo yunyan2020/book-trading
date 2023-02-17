@@ -1,7 +1,7 @@
-from datetime import datetime
 import requests
-from api import User, Book,Book_view,Customer,Order
+from api import User, Book_view,Customer,Order
 import csv
+
 
 
 def url(route: str):
@@ -80,7 +80,6 @@ def login():
     credientials = getCredientials(username)[0]
     stored_user = User(**credientials)
     user = User(username=username, password=password,id=stored_user.id)
-    print(f"user :{user}")
     if username == stored_user.username and password == stored_user.password:
         logoutExistedUser()
         saveLoinInfo(user)
@@ -137,7 +136,7 @@ def get_book_by_id(id:int):
         return []   
     return res.json()
 
-def get_customer_code():
+def get_current_login():
     res = requests.get(url(f"/current_login"))
     if res.status_code != 200:
         return []   
@@ -152,6 +151,13 @@ def save_order(order: Order):
 
 
 def order_books():
+    #check if it is login
+    current_login = get_current_login()
+    if current_login == []:
+        print("You haven't login. Plese login first!")
+        return
+    for customer in current_login:
+        customer_info =  Customer(**customer)
     get_all_books()
     bookId = input("Please input your Book ID: ")
     bookId = bookId.strip()
@@ -160,7 +166,7 @@ def order_books():
         return
     ordered_book = get_book_by_id(bookId)
     while  ordered_book == []:
-        print("There is no such book")
+        print("There is no such a book")
         bookId = input("Please input your Book ID: ")
         bookId = bookId.strip()
         if not str.isdigit(bookId):
@@ -169,13 +175,8 @@ def order_books():
 
     for book in ordered_book:
         book = Book_view(**book)
-        print(f"Book ID: {book.id} ISBN: {book.ISBN} Title:{book.title} Author:{book.author} Price: {book.price}")
-        
-    print(book)
+        print(f"Book ID: {book.id} ISBN: {book.ISBN} Title:{book.title} Author:{book.author} Price: {book.price}")   
     
-    current_login = get_customer_code()
-    for customer in current_login:
-        customer_info =  Customer(**customer)
 
     quantity = input("Please enter the quantity of books you want to order: ")
     quantity = quantity.strip()
@@ -184,5 +185,56 @@ def order_books():
         return
     print(f"customerId {customer_info.customerId}") 
     order = Order(customerId=customer_info.customerId, ISBN=book.ISBN,quantity=quantity,salesPrice=book.price)
-    print(order)
     save_order(order)
+
+
+def change_password():
+    print("Change password")
+    print("")
+    password = input(str("New password : "))
+    repeat_password = input(str("Repeat your new password: "))
+    if password != repeat_password:
+        print("New password is not match your repeated password!")
+        return
+    
+    current_login = get_current_login()
+    if current_login == []:
+        print("You haven't login yet! Please login first!")
+        return
+    for user in current_login:
+        login_user =  User(**user)
+
+    user = User(username=login_user.username, password=password)
+    res = requests.put(url("/user"), json=user.dict())
+    if res.status_code == 200:
+        print("Change password successful")
+    else:
+        print("Change password failed")
+
+def get_order_by_id(order_no:int):
+    res = requests.get(url(f"/order/{order_no}"))
+    print(res.json())
+    if res.status_code != 200:
+        return []   
+    return res.json()
+
+
+def delete_order():
+    print("Delete an order")
+    print("")   
+    order_no = input("Please input your order number: ")
+    order_no = order_no.strip()
+    if not str.isdigit(order_no):
+        print("order_no are integers")
+        return
+    order = get_order_by_id(order_no)
+    print(f"get order by orderNo {order}")
+    if order == []:
+        print("There is no such order,Please enter a new order!")
+        return
+    res = requests.delete(url(f"/order/{order_no}"))
+    if res.status_code != 200:
+        return
+    elif res.status_code == 200:
+        print("Delete successful!")
+    

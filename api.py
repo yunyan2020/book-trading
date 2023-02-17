@@ -183,3 +183,37 @@ def save_order(order: Order):
     salesDate = datetime.now()
     db.call_db(insert_query, order.customerId,order.ISBN, order.quantity,order.salesPrice,salesDate)
     return "Order books"
+
+@app.put("/user")
+def change_password(user: User):
+    update_query = """
+    UPDATE users
+    SET  password = ?
+    FROM users
+    WHERE username = ?
+    """     
+   
+    db.call_db(update_query,user.password,user.username)
+    return "Password changed"
+
+@app.delete("/order/{order_no}")
+def delete_order(order_no: int):
+    delete_query = """
+    DELETE FROM orders 
+    WHERE orderNo = ?
+    """
+    db.call_db(delete_query,order_no)
+    return True
+
+@app.get("/order/{order_no}")
+def get_order_by_id(order_no: int):
+    get_query = """
+    SELECT * FROM orders
+    WHERE orderNo = ?
+    """     
+    data = db.call_db(get_query, order_no) 
+    order = [
+        Order(orderNo=orderNo, customerId=customerId, ISBN=ISBN,quantity=quantity,salesPrice=salesPrice,salesDate=salesDate)
+        for orderNo, customerId, ISBN,quantity,salesPrice,salesDate in data
+    ]    
+    return order

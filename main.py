@@ -1,5 +1,5 @@
 from bookTrading import register,get_all_users,login,logoutExistedUser,import_book_csv_data
-from bookTrading import import_authors_csv_data,order_books
+from bookTrading import import_authors_csv_data,order_books,change_password,delete_order
 
 def admin_session():
     while 1 :
@@ -8,9 +8,8 @@ def admin_session():
         print("0. Get all users")
         print("1. import authors") 
         print("2. import books")
-        print("3. Modify order")
-        print("4. delete orders")    
-        print("5. logout")  
+        print("3. delete orders")    
+        print("4. Exit")  
 
         user_option = input(str("Option : "))
        
@@ -23,14 +22,10 @@ def admin_session():
         elif user_option == "1":
             import_authors_csv_data()             
         elif user_option == "2":   
-            import_book_csv_data()              
+            import_book_csv_data()   
         elif user_option == "3":
-            print("Modify order")
-        elif user_option == "4":
-            print("delete orders")  
-        elif user_option == "5":
-            logoutExistedUser()
-            print("Logout successful")  
+            delete_order()  
+        elif user_option == "4": 
             break
         else:
             print("No valid option was selected")
@@ -43,8 +38,9 @@ def customer_session():
         print("1. Register")
         print("2. Login")
         print("3. Order books")
-        print("4. Get my orders")
-        print("5. logout")
+        print("4. Change password")
+        print("5. Get my orders")
+        print("6. logout")
         user_option = input(str("Option : "))
         if user_option == "1":
             register()
@@ -53,8 +49,12 @@ def customer_session():
         elif user_option == "3":
             order_books()
         elif user_option == "4":
-            print("Get my orders")
+            change_password()
         elif user_option == "5":
+            print("Get my orders")
+        elif user_option == "6":
+            logoutExistedUser()
+            print("Logout successful")  
             break
         else:
             print("No valid option was selected")
