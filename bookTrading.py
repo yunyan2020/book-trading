@@ -1,5 +1,6 @@
+import datetime
 import requests
-from api import User, Book_view,Customer,Order
+from api import User, Book_view,Customer,Order,Order_view
 import csv
 
 
@@ -158,6 +159,7 @@ def order_books():
         return
     for customer in current_login:
         customer_info =  Customer(**customer)
+
     get_all_books()
     bookId = input("Please input your Book ID: ")
     bookId = bookId.strip()
@@ -192,7 +194,7 @@ def change_password():
     print("Change password")
     print("")
     password = input(str("New password : "))
-    repeat_password = input(str("Repeat your new password: "))
+    repeat_password = input(str("Verify New Password: "))
     if password != repeat_password:
         print("New password is not match your repeated password!")
         return
@@ -213,7 +215,6 @@ def change_password():
 
 def get_order_by_id(order_no:int):
     res = requests.get(url(f"/order/{order_no}"))
-    print(res.json())
     if res.status_code != 200:
         return []   
     return res.json()
@@ -222,13 +223,18 @@ def get_order_by_id(order_no:int):
 def delete_order():
     print("Delete an order")
     print("")   
-    order_no = input("Please input your order number: ")
+    order_no = input("Please input your order number that you want to delete: ")
     order_no = order_no.strip()
     if not str.isdigit(order_no):
         print("order_no are integers")
         return
     order = get_order_by_id(order_no)
-    print(f"get order by orderNo {order}")
+    print(f"Get order thant you want to delete {order}")
+    
+    delete_confirm = input("Are you sure to delete it (y/n): ")
+    if delete_confirm.upper() != "Y":
+        return
+
     if order == []:
         print("There is no such order,Please enter a new order!")
         return
@@ -238,3 +244,25 @@ def delete_order():
     elif res.status_code == 200:
         print("Delete successful!")
     
+def get_order_by_customerId(customerId:int):
+    res = requests.get(url(f"/order/customer/{customerId}"))
+    if res.status_code != 200:
+        return []   
+    return res.json()
+
+def get_my_orders():
+    current_login = get_current_login()
+    if current_login == []:
+        print("You haven't login. Plese login first!")
+        return
+    for customer in current_login:
+        customer_info =  Customer(**customer)
+
+    customerId = customer_info.customerId
+    my_orders = get_order_by_customerId(customerId)
+    print("My orders!")
+    for order in my_orders:
+        order = Order_view(**order)
+        print(f"Order No: {order.orderNo} Customer: {order.customer} ISBN:{order.ISBN} Quantity:{order.quantity} Price: {order.salesPrice} Order Date: {order.salesDate}") 
+
+       

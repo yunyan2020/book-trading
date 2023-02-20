@@ -1,5 +1,5 @@
 from bookTrading import register,get_all_users,login,logoutExistedUser,import_book_csv_data
-from bookTrading import import_authors_csv_data,order_books,change_password,delete_order
+from bookTrading import import_authors_csv_data,order_books,change_password,delete_order,get_my_orders
 
 def admin_session():
     while 1 :
@@ -51,7 +51,7 @@ def customer_session():
         elif user_option == "4":
             change_password()
         elif user_option == "5":
-            print("Get my orders")
+            get_my_orders()
         elif user_option == "6":
             logoutExistedUser()
             print("Logout successful")  

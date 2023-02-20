@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from fastapi import FastAPI
 from pydantic import BaseModel
 
@@ -43,6 +43,17 @@ class Order(BaseModel):
     ISBN       :str
     quantity :int
     salesPrice:float
+
+class Order_view(BaseModel):
+    orderNo: int = None
+    customer: str
+    ISBN     :str
+    author   :str
+    title    :str
+    quantity :int
+    salesPrice:float
+    salesDate :date
+
 
 app = FastAPI()
 # db = DB("todo.db")
@@ -179,9 +190,9 @@ def save_order(order: Order):
     insert_query = """
     INSERT INTO orders (customerId,ISBN,quantity,salesPrice,salesDate)
     VALUES (?,?,?,?,?)
-    """     
-    salesDate = datetime.now()
-    db.call_db(insert_query, order.customerId,order.ISBN, order.quantity,order.salesPrice,salesDate)
+    """   
+    saleDate = datetime.now()  
+    db.call_db(insert_query, order.customerId,order.ISBN, order.quantity,order.salesPrice,saleDate)
     return "Order books"
 
 @app.put("/user")
@@ -215,5 +226,23 @@ def get_order_by_id(order_no: int):
     order = [
         Order(orderNo=orderNo, customerId=customerId, ISBN=ISBN,quantity=quantity,salesPrice=salesPrice,salesDate=salesDate)
         for orderNo, customerId, ISBN,quantity,salesPrice,salesDate in data
+    ]    
+    return order
+
+@app.get("/order/customer/{customerId}")
+def get_order_by_id(customerId: int):
+    get_query = """
+    SELECT o.orderNo,u.username as customer,o.ISBN, STRING_AGG(a.firstName + ' ' + a.lastName, ',') as author,b.title,o.quantity,o.salesPrice,o.salesDate
+    FROM   orders as o,users as u,books as b ,authors as a
+    WHERE  o.ISBN = b.ISBN
+    AND    o.customerId = u.id
+    AND    b.authorId = a.authorId
+    AND    o.customerId = ?
+    GROUP BY o.orderNo,u.username,o.ISBN,b.title,o.quantity,o.salesPrice,o.salesDate
+    """     
+    data = db.call_db(get_query, customerId) 
+    order = [
+        Order_view(orderNo=orderNo, customer=customer, ISBN=ISBN,author=author,title=title,quantity=quantity,salesPrice=salesPrice,salesDate=salesDate)
+        for orderNo,customer,ISBN,author,title,quantity,salesPrice,salesDate in data
     ]    
     return order
