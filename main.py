@@ -1,15 +1,16 @@
 from bookTrading import register,get_all_users,login,logoutExistedUser,import_book_csv_data
-from bookTrading import import_authors_csv_data,order_books,change_password,delete_order,get_my_orders
+from bookTrading import import_authors_csv_data,order_books,change_password,delete_order,get_my_orders,update_book
 
 def admin_session():
     while 1 :
         print("")
         print("Admin Menu")
         print("0. Get all users")
-        print("1. import authors") 
-        print("2. import books")
-        print("3. delete orders")    
-        print("4. Exit")  
+        print("1. Import authors") 
+        print("2. Import books")
+        print("3. Delete an order") 
+        print("4. Update book's titile and price ")    
+        print("5. Exit")  
 
         user_option = input(str("Option : "))
        
@@ -24,8 +25,10 @@ def admin_session():
         elif user_option == "2":   
             import_book_csv_data()   
         elif user_option == "3":
-            delete_order()  
-        elif user_option == "4": 
+            delete_order() 
+        elif user_option == "4":
+            update_book()   
+        elif user_option == "5": 
             break
         else:
             print("No valid option was selected")
@@ -41,6 +44,7 @@ def customer_session():
         print("4. Change password")
         print("5. Get my orders")
         print("6. logout")
+        print("7. Exit without logout")
         user_option = input(str("Option : "))
         if user_option == "1":
             register()
@@ -55,6 +59,9 @@ def customer_session():
         elif user_option == "6":
             logoutExistedUser()
             print("Logout successful")  
+            break
+        elif user_option == "7":
+            print("Exit without logout")  
             break
         else:
             print("No valid option was selected")

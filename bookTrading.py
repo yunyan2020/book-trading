@@ -89,7 +89,7 @@ def login():
 
 
 def import_authors_csv_data():
-    with open("authors.csv", "r") as f:
+    with open("import/authors1.csv", "r") as f:
         authors = csv.DictReader(f)
         import_row = 0
         for row in authors:
@@ -102,7 +102,7 @@ def import_authors_csv_data():
                 print(f"Imported failed")
 
 def import_book_csv_data():
-    with open("books.csv", "r") as f:
+    with open("import/books1.csv", "r") as f:
         books = csv.DictReader(f)
         import_row = 0
         for row in books:
@@ -229,7 +229,7 @@ def delete_order():
         print("order_no are integers")
         return
     order = get_order_by_id(order_no)
-    print(f"Get order thant you want to delete {order}")
+    print(f"Get an order that you want to delete {order}")
     
     delete_confirm = input("Are you sure to delete it (y/n): ")
     if delete_confirm.upper() != "Y":
@@ -264,5 +264,9 @@ def get_my_orders():
     for order in my_orders:
         order = Order_view(**order)
         print(f"Order No: {order.orderNo} Customer: {order.customer} ISBN:{order.ISBN} Quantity:{order.quantity} Price: {order.salesPrice} Order Date: {order.salesDate}") 
+
+    
+def update_book():
+    pass
 
        
