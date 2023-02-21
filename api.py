@@ -35,7 +35,6 @@ class Author(BaseModel):
 class Customer(BaseModel):
     customerId: int = None
     username: str
-    password: str
 
 class Order(BaseModel):
     orderNo: int = None
@@ -101,10 +100,10 @@ def delete_login():
 def login_customer(user: User):
     login_date = datetime.now()
     insert_query = """
-    INSERT INTO currentLogin (username,customerId,password,loginDate)
-    VALUES (?,?,?,?)
+    INSERT INTO currentLogin (username,customerId,loginDate)
+    VALUES (?,?,?)
     """
-    db.call_db(insert_query, user.username,user.id, user.password, login_date)
+    db.call_db(insert_query, user.username,user.id,login_date)
     return "Login a user"
 
 
@@ -180,8 +179,8 @@ def get_current_login():
     """
     data = db.call_db(get_current_login_query)
     current_login = [
-        Customer(customerId=customerId, username=username, password=password)
-        for id,customerId, username, password,login_date in data
+        Customer(customerId=customerId, username=username)
+        for id,customerId, username, loginDate in data
     ]
     return current_login
 
@@ -246,3 +245,38 @@ def get_order_by_id(customerId: int):
         for orderNo,customer,ISBN,author,title,quantity,salesPrice,salesDate in data
     ]    
     return order
+
+
+@app.put("/book")
+def update_a_book_with_new_values(book: Book):
+    update_query = """
+    UPDATE books
+    SET  title = ?,authorId = ?,price = ?
+    FROM books
+    WHERE id = ?
+    """     
+   
+    db.call_db(update_query,book.title,book.authorId,book.price,book.id)
+    return "The book has updated"
+
+@app.get("/author/{authorId}")
+def get_a_author_by_authorId(authorId: int):
+    get_user_query = """
+    SELECT * FROM authors
+    WHERE authorId=?
+    """
+    db.call_db(get_user_query, authorId)
+    data = db.call_db(get_user_query, authorId)
+    author = [
+        Author(id=authorId, firstName=firstName, lastName=lastName)
+        for authorId, firstName, lastName in data
+    ]
+    return author
+    # if data:
+    #     authorId, firstName, lastName = data[0]
+    #     author = Author(id=authorId, firstName=firstName, lastName=lastName)
+    #     return author
+    # else:
+    #     return []
+
+   

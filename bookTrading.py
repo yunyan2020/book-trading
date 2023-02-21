@@ -1,6 +1,5 @@
-import datetime
 import requests
-from api import User, Book_view,Customer,Order,Order_view
+from api import User, Book_view,Customer,Order,Order_view,Book
 import csv
 
 
@@ -26,9 +25,7 @@ def get_all_users():
 
 def hasSameUsernameFunction(username: str):
     res = requests.get(url(f"/user/{username.strip()}"))
-    print(f"res is : {res.json}")
     findUsername = len(res.json()) > 0
-    print(f"find user name: {findUsername}")
     if not res.status_code == 200:
         return
     return findUsername
@@ -45,13 +42,10 @@ def register():
         print("The username has been used. Please enter another username")
         username = input(str("Customer username: "))
         password = input(str("Customer password: "))
-        print(username)
         hasUsername = hasSameUsernameFunction(username)
 
     new_user = User(username=username, password=password)
-    print(new_user)
     res = requests.post(url("/register"), json=new_user.dict())
-    print(res)
 
 
 def getCredientials(username: str):
@@ -126,9 +120,11 @@ def get_all_books():
         return []
      for book in res.json():
         book = Book_view(**book)
-        print("_________________")
+        print("_____________________________________________________________________________")
         print(f"Book ID: {book.id} ISBN: {book.ISBN} Title:{book.title} Author:{book.author} Price: {book.price}")
         books.append(book)
+     print("_____________________________________________________________________________")
+     print("")
      return books
 
 def get_book_by_id(id:int):
@@ -137,18 +133,14 @@ def get_book_by_id(id:int):
         return []   
     return res.json()
 
-def get_current_login():
-    res = requests.get(url(f"/current_login"))
-    if res.status_code != 200:
-        return []   
-    return res.json()
 
 def save_order(order: Order):
     res = requests.post(url("/order"), json=order.dict())
     if res.status_code == 200:
-        print("Save order successful")
+        print("Save the order successful")
     else:
-        print("Save order failed")
+        print("Save the order failed")
+        return
 
 
 def order_books():
@@ -161,18 +153,18 @@ def order_books():
         customer_info =  Customer(**customer)
 
     get_all_books()
-    bookId = input("Please input your Book ID: ")
+    bookId = input("Please input the Book ID that you want to order: ")
     bookId = bookId.strip()
     if not str.isdigit(bookId):
-        print("Ids are integers")
+        print("Book ids are integers")
         return
     ordered_book = get_book_by_id(bookId)
     while  ordered_book == []:
         print("There is no such a book")
-        bookId = input("Please input your Book ID: ")
+        bookId = input("Please input the Book ID that you want to order: ")
         bookId = bookId.strip()
         if not str.isdigit(bookId):
-            print("Ids are integers")
+            print("Book ids are integers")
         ordered_book = get_book_by_id(bookId)
 
     for book in ordered_book:
@@ -183,12 +175,17 @@ def order_books():
     quantity = input("Please enter the quantity of books you want to order: ")
     quantity = quantity.strip()
     if not str.isdigit(quantity):
-        print("Ids are integers")
+        print("Quantity is integers")
         return
     print(f"customerId {customer_info.customerId}") 
     order = Order(customerId=customer_info.customerId, ISBN=book.ISBN,quantity=quantity,salesPrice=book.price)
     save_order(order)
 
+def get_current_login():
+    res = requests.get(url(f"/current_login"))
+    if res.status_code != 200:
+        return []   
+    return res.json()
 
 def change_password():
     print("Change password")
@@ -203,8 +200,8 @@ def change_password():
     if current_login == []:
         print("You haven't login yet! Please login first!")
         return
-    for user in current_login:
-        login_user =  User(**user)
+    for customer in current_login:
+        login_user =  Customer(**customer)
 
     user = User(username=login_user.username, password=password)
     res = requests.put(url("/user"), json=user.dict())
@@ -229,15 +226,16 @@ def delete_order():
         print("order_no are integers")
         return
     order = get_order_by_id(order_no)
-    print(f"Get an order that you want to delete {order}")
-    
-    delete_confirm = input("Are you sure to delete it (y/n): ")
-    if delete_confirm.upper() != "Y":
-        return
+    print(f"Get an order that you want to delete {order}") 
 
     if order == []:
         print("There is no such order,Please enter a new order!")
         return
+
+    delete_confirm = input("Are you sure to delete it (y/n): ")
+    if delete_confirm.upper() != "Y":
+        return
+
     res = requests.delete(url(f"/order/{order_no}"))
     if res.status_code != 200:
         return
@@ -260,13 +258,82 @@ def get_my_orders():
 
     customerId = customer_info.customerId
     my_orders = get_order_by_customerId(customerId)
+    if my_orders == []:
+        print("You don't have any orders!")
+        return
+           
     print("My orders!")
     for order in my_orders:
-        order = Order_view(**order)
+        order = Order_view(**order) 
         print(f"Order No: {order.orderNo} Customer: {order.customer} ISBN:{order.ISBN} Quantity:{order.quantity} Price: {order.salesPrice} Order Date: {order.salesDate}") 
 
+
+def check_author_id(authorId:int):
+    res = requests.get(url(f"/author/{authorId}"))
+    if res.status_code != 200:
+        return []   
+    return res.json()
+
+def update_a_book_with_new_values(book: Book):
+    res = requests.put(url("/book"), json=book.dict())
+    if res.status_code == 200:
+        print("Save the book successful")
+    else:
+        print("Save the book failed")
+        return
     
 def update_book():
-    pass
+    print("Here you can update the book's title,author Id and price")
+      
+    get_all_books()
+    bookId = input("Please input the Book ID that you want to update: ")
+    bookId = bookId.strip()
+    if not str.isdigit(bookId):
+        print("Ids are integers")
+        return
+    stored_book = get_book_by_id(bookId)
+    while  stored_book == []:
+        print("There is no such a book")
+        bookId = input("Please input the Book ID that you want to update: ")
+        bookId = bookId.strip()
+        if not str.isdigit(bookId):
+            print("Ids are integers")
+        stored_book = get_book_by_id(bookId)
+
+    for book in stored_book:
+        book = Book_view(**book)
+        print(f"Book ID: {book.id} ISBN: {book.ISBN} Title:{book.title} Author:{book.author} Price: {book.price}")   
+
+    new_title = (input(str("New Title : "))).strip()
+    new_author_id = (input("New Author Id: ")).strip()
+    if not str.isdigit(new_author_id):
+        print("Author Id is integer ")
+        return
+    
+    author = check_author_id(new_author_id)
+    if author == []:
+        print("There is no such author!")
+        return
+    
+    new_price = input("New price: ").strip()
+    try:
+        new_price = float(new_price)
+        print("New price is:", new_price)
+    except ValueError:
+        print("Price has to be a decimal")
+    
+    new_book = Book(id=book.id,ISBN=book.ISBN,title=new_title,authorId =new_author_id,price=new_price)
+    print(new_book)
+    update_a_book_with_new_values(new_book)
+    updated_book = get_book_by_id(bookId)
+    for book in updated_book:
+        book = Book_view(**book)
+        print("Please view the updated book as following:")
+        print(f"Book ID: {book.id} ISBN: {book.ISBN} Title:{book.title} Author:{book.author} Price: {book.price}")   
+        print("")
+
+
+
+
 
        

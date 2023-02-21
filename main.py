@@ -9,7 +9,7 @@ def admin_session():
         print("1. Import authors") 
         print("2. Import books")
         print("3. Delete an order") 
-        print("4. Update book's titile and price ")    
+        print("4. Update a book")    
         print("5. Exit")  
 
         user_option = input(str("Option : "))
@@ -44,7 +44,6 @@ def customer_session():
         print("4. Change password")
         print("5. Get my orders")
         print("6. logout")
-        print("7. Exit without logout")
         user_option = input(str("Option : "))
         if user_option == "1":
             register()
@@ -59,9 +58,6 @@ def customer_session():
         elif user_option == "6":
             logoutExistedUser()
             print("Logout successful")  
-            break
-        elif user_option == "7":
-            print("Exit without logout")  
             break
         else:
             print("No valid option was selected")
