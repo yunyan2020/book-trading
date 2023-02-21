@@ -1,4 +1,5 @@
 # book-trading
+# Use /sql/create_database_tables.sql to create local database and tables
 
 New a Git Bash terminal and install some packages
 
