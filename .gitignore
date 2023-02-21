@@ -2,6 +2,5 @@ Pipfile
 Pipfile.lock
 \doc
 .vscode
-\sql
 \__pycache__
 \import
