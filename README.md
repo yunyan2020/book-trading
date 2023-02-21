@@ -6,12 +6,11 @@ New a Git Bash terminal and install some packages
 
 # activate virtual environment
 
-New a Git Bash terminal and write a command
-
+#New a Git Bash terminal and write a command
 > pipenv shell
-> Start uvicorn server
+# Start uvicorn server
 > uvicorn api:app --reload
-> New a Git Bash terminal
+# New a Git Bash terminal
 > Run main.py
 
 # Main menu
