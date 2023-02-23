@@ -51,7 +51,7 @@ def register():
 def getCredientials(username: str):
     res = requests.get(url(f"/user/{username.strip()}"))
     if not res.status_code == 200:
-        return
+        return []
     return res.json()
 
 
@@ -72,7 +72,11 @@ def login():
     print("")
     username = input(str("Customer username: "))
     password = input(str("Customer password: "))
-    credientials = getCredientials(username)[0]
+    credientials = getCredientials(username)
+    if credientials == []:
+         print("Bad credentials")
+         return
+    credientials = credientials[0]
     stored_user = User(**credientials)
     user = User(username=username, password=password,id=stored_user.id)
     if username == stored_user.username and password == stored_user.password:
